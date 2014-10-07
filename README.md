@@ -1,5 +1,8 @@
 CodeDependencyVisualizer
 ========================
+
+This tool is intended for reverse engineering UML class diagrams out of existing C++ code. It can visualize the class diagrams but also show “associations” between classes. 
+
 You might also take a look at my blogpost: http://gernotklingler.com/blog/libclang-reverse-engineering-uml-class-diagrams/
 
 Dependencies
