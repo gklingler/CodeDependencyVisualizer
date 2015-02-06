@@ -83,7 +83,7 @@ def processClassMemberDeclaration(umlClass, cursor):
             umlClass.protectedMethods.append((returnType, cursor.spelling, argumentTypes))
 
 
-def processClass(cursor):
+def processClass(cursor, inclusionConfig):
     """ Processes an ast node that is a class. """
     umlClass = UmlClass()  # umlClass is the datastructure for the DotGenerator
                            # that stores the necessary information about a single class.
@@ -98,6 +98,15 @@ def processClass(cursor):
         #   struct MyStruct ...
         umlClass.fqn = cursor.type.spelling  # the fully qualified name
 
+    import re
+    if (inclusionConfig['exclude_classes'] and
+            re.match(inclusionConfig['exclude_classes'], umlClass.fqn)):
+        return
+
+    if (inclusionConfig['include_classes'] and not
+            re.match(inclusionConfig['include_classes'], umlClass.fqn)):
+        return
+
     for c in cursor.get_children():
         # process member variables and methods declarations
         processClassMemberDeclaration(umlClass, c)
@@ -105,24 +114,24 @@ def processClass(cursor):
     dotGenerator.addClass(umlClass)
 
 
-def traverseAst(cursor):
+def traverseAst(cursor, inclusionConfig):
     if (cursor.kind == clang.cindex.CursorKind.CLASS_DECL
             or cursor.kind == clang.cindex.CursorKind.STRUCT_DECL
             or cursor.kind == clang.cindex.CursorKind.CLASS_TEMPLATE):
         # if the current cursor is a class, class template or struct declaration,
         # we process it further ...
-        processClass(cursor)
+        processClass(cursor, inclusionConfig)
     for child_node in cursor.get_children():
-        traverseAst(child_node)
+        traverseAst(child_node, inclusionConfig)
 
 
-def parseTranslationUnit(filePath, includeDirs):
+def parseTranslationUnit(filePath, includeDirs, inclusionConfig):
     clangArgs = ['-x', 'c++'] + ['-I' + includeDir for includeDir in includeDirs]
     tu = index.parse(filePath, args=clangArgs, options=clang.cindex.TranslationUnit.PARSE_SKIP_FUNCTION_BODIES)
     for diagnostic in tu.diagnostics:
         logging.debug(diagnostic)
     logging.info('Translation unit:' + tu.spelling + "\n")
-    traverseAst(tu.cursor)
+    traverseAst(tu.cursor, inclusionConfig)
 
 
 if __name__ == "__main__":
@@ -137,6 +146,8 @@ if __name__ == "__main__":
     parser.add_argument('-P', '--pubMembers', action="store_true", help="show public members")
     parser.add_argument('-I', '--includeDirs', help="additional search path(s) for include files (seperated by space)", nargs='+')
     parser.add_argument('-v', '--verbose', action="store_true", help="print verbose information for debugging purposes")
+    parser.add_argument('--exclude_classes', help="classes matching this pattern will be excluded")
+    parser.add_argument('--include_classes', help="only classes matching this pattern will be included")
 
     args = vars(parser.parse_args(sys.argv[1:]))
 
@@ -147,16 +158,17 @@ if __name__ == "__main__":
     subdirectories = [x[0] for x in os.walk(args['d'])]
 
     loggingFormat = "%(levelname)s - %(module)s: %(message)s"
+    logging.basicConfig(format=loggingFormat, level=logging.INFO)
     if args['verbose']:
         logging.basicConfig(format=loggingFormat, level=logging.DEBUG)
-    else:
-        logging.basicConfig(format=loggingFormat, level=logging.INFO)
 
     logging.info("found " + str(len(filesToParse)) + " source files.")
 
     for sourceFile in filesToParse:
         logging.info("parsing file " + sourceFile)
-        parseTranslationUnit(sourceFile, args['includeDirs'])
+        parseTranslationUnit(sourceFile, args['includeDirs'], {
+            'exclude_classes': args['exclude_classes'],
+            'include_classes': args['include_classes']})
 
     dotGenerator.setDrawAssociations(args['associations'])
     dotGenerator.setDrawInheritances(args['inheritances'])

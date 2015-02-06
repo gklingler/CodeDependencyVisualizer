@@ -42,6 +42,10 @@ optional arguments:
                         additional search path(s) for include files (seperated
                         by space)
   -v, --verbose         print verbose information for debugging purposes
+  --exclude_classes EXCLUDE_CLASSES
+                        classes matching this pattern will be excluded
+  --include_classes INCLUDE_CLASSES
+                        only classes matching this pattern will be included
 ```
 
 Examples
