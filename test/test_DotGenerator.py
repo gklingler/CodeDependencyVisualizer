@@ -1,5 +1,7 @@
 from DotGenerator import *
 
+import sys
+
 dot = DotGenerator()
 
 privateFields=[("aa", "int"),("bb","void*"),("cc","NS1::BClass"),("dd", "void")]
@@ -24,7 +26,7 @@ c3 = UmlClass()
 c3.fqn = "CClass"
 dot.addClass(c3)
 
-with open("uml2.dot", "w") as dotfile:
-    dotfile.write(dot.generate())
+outputDotFile = ['uml2.dot', sys.argv[1]][len(sys.argv) == 2]
 
-#print (dot.generate())
+with open(outputDotFile, "w") as dotfile:
+    dotfile.write(dot.generate())
