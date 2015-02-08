@@ -51,7 +51,7 @@ optional arguments:
 Examples
 --------
 ```
-python CodeDependencyAnalyzer -aiptP --verbose -d dummyCppProject -I dummyCppProject/subfolder"
+./CodeDependencyVisualizer.py -aiptP --verbose -d dummyCppProject -I dummyCppProject/subfolder"
 ```
 The command above just creates the file 'uml.dot'. To convert the dot file to an svg image run the dot tool:
 ```
