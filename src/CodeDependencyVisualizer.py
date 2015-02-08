@@ -99,12 +99,12 @@ def processClass(cursor, inclusionConfig):
         umlClass.fqn = cursor.type.spelling  # the fully qualified name
 
     import re
-    if (inclusionConfig['exclude_classes'] and
-            re.match(inclusionConfig['exclude_classes'], umlClass.fqn)):
+    if (inclusionConfig['excludeClasses'] and
+            re.match(inclusionConfig['excludeClasses'], umlClass.fqn)):
         return
 
-    if (inclusionConfig['include_classes'] and not
-            re.match(inclusionConfig['include_classes'], umlClass.fqn)):
+    if (inclusionConfig['includeClasses'] and not
+            re.match(inclusionConfig['includeClasses'], umlClass.fqn)):
         return
 
     for c in cursor.get_children():
@@ -146,8 +146,8 @@ if __name__ == "__main__":
     parser.add_argument('-P', '--pubMembers', action="store_true", help="show public members")
     parser.add_argument('-I', '--includeDirs', help="additional search path(s) for include files (seperated by space)", nargs='+')
     parser.add_argument('-v', '--verbose', action="store_true", help="print verbose information for debugging purposes")
-    parser.add_argument('--exclude_classes', help="classes matching this pattern will be excluded")
-    parser.add_argument('--include_classes', help="only classes matching this pattern will be included")
+    parser.add_argument('--excludeClasses', help="classes matching this pattern will be excluded")
+    parser.add_argument('--includeClasses', help="only classes matching this pattern will be included")
 
     args = vars(parser.parse_args(sys.argv[1:]))
 
@@ -167,8 +167,8 @@ if __name__ == "__main__":
     for sourceFile in filesToParse:
         logging.info("parsing file " + sourceFile)
         parseTranslationUnit(sourceFile, args['includeDirs'], {
-            'exclude_classes': args['exclude_classes'],
-            'include_classes': args['include_classes']})
+            'excludeClasses': args['excludeClasses'],
+            'includeClasses': args['includeClasses']})
 
     dotGenerator.setDrawAssociations(args['associations'])
     dotGenerator.setDrawInheritances(args['inheritances'])

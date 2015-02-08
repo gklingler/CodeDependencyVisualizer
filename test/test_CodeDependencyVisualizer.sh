@@ -2,7 +2,7 @@
 
 TMP_DIR="/tmp"
 CPP_SRC_DIR="dummyCppProject"
-CUML_ARGS="-aiptP --verbose -d ${CPP_SRC_DIR} -I ./dummyCppProject/subfolder -o ${TMP_DIR}/uml.dot"
+CUML_ARGS="-aiptP --verbose -d ${CPP_SRC_DIR} -I ./dummyCppProject/subfolder -o ${TMP_DIR}/uml.dot --excludeClasses G"
 VIEWER="firefox"
 OUTPUT_FORMAT="svg"
 
